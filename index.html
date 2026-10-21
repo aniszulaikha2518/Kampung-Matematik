@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ms"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Escape Room Kampung Matematik</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#1b1033;--card:#fff8e7;--tx:#2b1b0e;--ac:#ff7a1a;--gl:#7cf9ff}
+
+
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 10% 8%,#fff7a8 0,transparent 30%),radial-gradient(circle at 90% 95%,#ffb3e1 0,transparent 40%),linear-gradient(160deg,#7fdcff,#b9a4ff 55%,#ffc9a3);background-attachment:fixed;font-family:"Trebuchet MS",system-ui,sans-serif;color:#3b1f7a;display:flex;justify-content:center;min-height:100vh}
+.app{width:100%;max-width:600px;padding:12px}
+h1{font-size:1.25rem;text-align:center;margin:4px 0 8px;color:#3b1f7a;text-shadow:0 2px 0 #fff,0 0 14px #fff}
+h1 small{display:block;font-size:.85rem;color:#d9480f}
+.bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-weight:bold;font-size:.95rem;text-align:center}
+.bar div{background:#fff;color:#3b1f7a;border:2px solid #ffd166;border-radius:12px;padding:6px 2px;box-shadow:0 3px 0 #ffd16688}
+.say{display:flex;gap:10px;align-items:center;background:#fff;color:#3b1f7a;border:2px solid #ff9ec7;border-radius:14px;padding:10px;margin:8px 0;font-size:.92rem}
+.say .av{font-size:2rem}
+.room{position:relative;height:420px;border-radius:18px;overflow:hidden;border:5px solid #fff;box-shadow:0 0 0 3px #ff8fb1,0 8px 24px #0003;
+background:linear-gradient(#ffb347,#ff9a3c) bottom/100% 24% no-repeat,radial-gradient(circle,#ffffffaa 4px,transparent 5px) 0 0/44px 44px,repeating-linear-gradient(90deg,#fff1a8 0 40px,#ffe27a 40px 80px)}
+.room::before{content:"🎈🎉🎈";position:absolute;left:8px;top:6px;font-size:2rem;animation:fl 1.2s infinite alternate}
+.room::after{content:"☀️🌈";position:absolute;right:8px;top:6px;font-size:2rem;animation:fl 1s infinite alternate}
+@keyframes fl{to{filter:drop-shadow(0 0 14px #ffb347);transform:scale(1.12)}}
+.obj{position:absolute;transform:translate(-50%,-50%);background:#fff8e7e0;border:3px solid #ffd166;border-radius:14px;font-size:2rem;padding:6px 8px;cursor:pointer;text-align:center;line-height:1.1;box-shadow:0 0 14px #ffd16688;animation:gl 2s infinite alternate;z-index:2}
+.obj small{display:block;font-size:.62rem;font-weight:bold;color:#3a2410}
+.obj:hover{transform:translate(-50%,-50%) scale(1.1)}
+.obj.done{border-color:var(--gl);box-shadow:0 0 16px var(--gl);animation:none}
+@keyframes gl{to{box-shadow:0 0 22px #ffd166}}
+.door{position:absolute;right:6%;bottom:6%;width:23%;height:46%;background:linear-gradient(#ff7eb6,#ff4f9a);border:4px solid #c2185b;border-radius:60px 60px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;z-index:2;color:#fff}
+.door small{font-size:.65rem;font-weight:bold}
+.door.open{background:linear-gradient(#fff6a8,#ffd93f);box-shadow:0 0 30px #ffd93f}
+.chip{position:absolute;left:8%;bottom:8%;font-size:2.6rem;z-index:2;animation:hop 1.6s infinite}
+@keyframes hop{50%{transform:translateY(-8px)}}
+.modal{position:fixed;inset:0;background:#3b1f7acc;display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal.on{display:flex}
+.box{background:var(--card);color:var(--tx);border-radius:18px;padding:18px;width:100%;max-width:410px;text-align:center}
+.q{font-size:1.15rem;font-weight:bold;margin:10px 0;line-height:1.45}
+input{font:inherit;font-size:1.6rem;width:100%;text-align:center;padding:8px;border-radius:10px;border:3px solid #c9a15b;margin:6px 0;background:#fff;color:#222}
+button{font:inherit;font-weight:bold;font-size:1rem;padding:10px 14px;border:0;border-radius:10px;background:var(--ac);color:#fff;cursor:pointer;margin:3px}
+button.g{background:#6c6c8a}
+.msg{min-height:1.4em;margin-top:6px;font-weight:bold}
+.shake{animation:sh .3s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style></head><body>
+<div class="app">
+<h1>🔐 Escape Room: Kampung Matematik<small>💯 Topik Peratus · Tahun 5 💯</small></h1>
+<div class="bar"><div>⏱️ <span id="tm">10:00</span></div><div>💎 <span id="cr">0</span>/4</div><div>🔑 <span id="cd">? ? ? ?</span></div><div>💡 <span id="hn">3</span></div></div>
+<div class="say"><div class="av">🐿️</div><div id="talk">Tahniah! Anda berjaya memasuki Kampung Matematik! Tetapi pintu bilik rahsia terkunci. Selesaikan teka-teki peratus, cari kristal yang hilang dan dapatkan kod 4 digit sebelum masa tamat!</div></div>
+<div class="room" id="room"></div>
+</div>
+<div class="modal" id="m"><div class="box" id="box"></div></div>
+<script>
+var P=[{i:"📚",n:"Buku Ajaib",x:17,y:36,d:0,a:9,q:"Buku Ajaib bertulis: Berapakah 25% daripada 36?",h:"25% sama dengan 1/4. Bahagikan 36 dengan 4."},
+{i:"🖼️",n:"Lukisan",x:50,y:24,d:1,a:7,q:"Dalam sebuah kelas ada 20 murid. 35% ialah murid lelaki. Berapakah bilangan murid lelaki?",h:"10% daripada 20 ialah 2. Cari 30% dan 5%, kemudian tambah."},
+{i:"⏰",n:"Jam Antik",x:50,y:56,d:2,a:5,q:"Sebuah buku berharga RM50. Diskaun 10%. Berapakah diskaun dalam RM?",h:"10% bermaksud bahagi dengan 10."},
+{i:"🧰",n:"Peti Harta",x:30,y:72,d:3,a:2,q:"Tukarkan pecahan 1/5 kepada peratus. Kemudian bahagikan jawapan itu dengan 10. Berapakah hasilnya?",h:"1/5 = 20%."}];
+var CODE="9752",solved,time,hints,over,cur,iv,$=function(i){return document.getElementById(i)};
+function count(){return P.filter(function(p,i){return solved[i]}).length}
+function build(){var h="";P.forEach(function(p,i){h+='<div class="obj'+(solved[i]?" done":"")+'" style="left:'+p.x+'%;top:'+p.y+'%" onclick="op('+i+')">'+(solved[i]?"💎":p.i)+'<small>'+p.n+'</small></div>'});
+h+='<div class="door'+(over=="win"?" open":"")+'" onclick="door()">'+(over=="win"?"🌟":"🔒")+'<small>PINTU</small></div><div class="chip">🐿️</div>';$("room").innerHTML=h}
+function upd(){var c=P.map(function(p,i){return solved[i]?CODE[p.d]:"?"}).join(" ");$("cd").textContent=c;$("cr").textContent=count();$("hn").textContent=hints;
+var m=Math.max(0,time);$("tm").textContent=Math.floor(m/60)+":"+("0"+m%60).slice(-2)}
+function show(h){$("box").innerHTML=h;$("m").className="modal on"}
+function close_(){$("m").className="modal"}
+function say(t){$("talk").textContent=t}
+function op(i){if(over||solved[i])return;cur=i;var p=P[i];show('<div style="font-size:2.2rem">'+p.i+'</div><b>'+p.n+'</b><div class="q">'+p.q+'</div><input id="in" type="number" inputmode="numeric" placeholder="Jawapan"><div><button onclick="chk()">Semak ✔️</button><button class="g" onclick="hint()">💡 Petunjuk</button><button class="g" onclick="close_()">Tutup</button></div><div class="msg" id="ms"></div>');$("in").focus()}
+function chk(){var v=parseInt($("in").value,10);if(v===P[cur].a){solved[cur]=1;close_();upd();build();say("💎 Kristal ditemui! Digit kod ke-"+(P[cur].d+1)+" ialah "+CODE[P[cur].d]+". "+(count()==4?"Semua digit sudah ada! Pergi ke pintu!":"Teruskan mencari!"))}
+else{time-=10;upd();$("box").classList.remove("shake");void $("box").offsetWidth;$("box").classList.add("shake");$("ms").textContent="❌ Salah! Masa ditolak 10 saat."}}
+function hint(){if(hints<1){$("ms").textContent="Petunjuk sudah habis!";return}hints--;time-=15;upd();$("ms").textContent="💡 "+P[cur].h+" (−15 saat)"}
+function door(){if(over)return;if(count()<4){say("🔒 Pintu terkunci! Cari semua 4 kristal untuk mendapat kod penuh.");return}
+show('<div style="font-size:2.2rem">🔒</div><div class="q">Masukkan kod 4 digit untuk membuka pintu!</div><input id="in" type="number" inputmode="numeric" placeholder="????"><div><button onclick="code()">Buka 🔓</button><button class="g" onclick="close_()">Tutup</button></div><div class="msg" id="ms"></div>')}
+function code(){if($("in").value===CODE){finish("win")}else{time-=10;upd();$("ms").textContent="❌ Kod salah! Susun digit ikut urutan 1 hingga 4."}}
+function finish(s){over=s;clearInterval(iv);build();upd();var w=s=="win";show('<div style="font-size:3rem">'+(w?"🎉":"⏰")+'</div><div class="q">'+(w?"Tahniah! Anda berjaya melarikan diri dan menyelamatkan Kampung Matematik! Baki masa: "+$("tm").textContent:"Masa tamat! Kristal ditemui: "+count()+"/4. Cuba lagi!")+'</div><button onclick="start()">Main Semula 🔄</button>');say(w?"🏆 Anda hebat peratus!":"😢 Pintu masih terkunci...")}
+function start(){solved={};time=600;hints=3;over=false;close_();clearInterval(iv);build();upd();say("Bilik rahsia terkunci! Klik objek yang bercahaya untuk menyelesaikan teka-teki peratus.");
+iv=setInterval(function(){time--;upd();if(time<=0)finish("lose")},1000)}
+start();
+</script></body></html>
